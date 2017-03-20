@@ -12,18 +12,22 @@ URL_PREFIX = 'https://femiwiki.com/w/api.php?'
 
 
 def main():
+    text = get_wikitext('페미위키:한줄인용', True)
+    lines = text.split('\n')
+    tweets = [line[1:].strip() for line in lines if
+              re.match(r'^\*\s+.+$', line)]
+    tweet = random.choice(tweets)
+    lines = list(break_text(tweet, 140))
+
     api = twitter.Api(
         consumer_key=os.environ['TWITTER_CONSUMER_KEY'],
         consumer_secret=os.environ['TWITTER_CONSUMER_SECRET'],
         access_token_key=os.environ['TWITTER_ACCESS_TOKEN'],
         access_token_secret=os.environ['TWITTER_ACCESS_TOKEN_SECRET'],
     )
-    text = get_wikitext('페미위키:한줄인용', True)
-    lines = text.split('\n')
-    tweets = [line[1:].strip() for line in lines if
-              re.match(r'^\*\s+.+$', line)]
-    tweet = random.choice(tweets)
-    api.PostUpdate(tweet)
+    status = api.PostUpdate(lines[0])
+    for line in lines[1:]:
+        status = api.PostUpdate(line, in_reply_to_status_id=status.id)
 
 
 def get_wikitext(title, patrolled):
@@ -82,6 +86,29 @@ def json_from_url(url):
 
 def get_module_dir():
     return os.path.dirname(os.path.abspath(getsourcefile(lambda: 0)))
+
+
+def break_text(text, limit=140, cont='\u2026'):
+    if len(text) <= limit:
+        yield text
+        return
+
+    words = text.split(' ')
+    line = ''
+    for i, word in enumerate(words):
+        if len(line + ' ' + word) >= limit:
+            yield line + cont
+            line = cont + word
+        else:
+            is_last_word = len(words) == i + 1
+            if is_last_word:
+                yield line + ' ' + word
+                return
+            else:
+                line = (line + ' ' + word).strip()
+
+    if len(line):
+        yield line
 
 
 if __name__ == '__main__':
