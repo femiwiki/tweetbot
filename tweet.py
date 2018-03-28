@@ -16,7 +16,7 @@ def main():
     lines = text.split('\n')
     tweets = [line[1:].strip() for line in lines if
               re.match(r'^\*\s+.+$', line)]
-    tweet = random.choice(tweets)
+    tweet = choice_tweet(tweets, 300)
     lines = list(break_text(tweet, 140))
 
     api = twitter.Api(
@@ -86,6 +86,30 @@ def json_from_url(url):
 
 def get_module_dir():
     return os.path.dirname(os.path.abspath(getsourcefile(lambda: 0)))
+
+def choice_tweet(tweets, saving_limit=300):
+    recent_tweets_file = os.path.join(get_module_dir(), 'recent_tweets')
+
+    try:
+        with open(recent_tweets_file, 'r') as f:
+            recent_tweets = f.read().split('\n')
+    except IOError:
+        recent_tweets = []
+
+    for recent_tweet in recent_tweets:
+        if recent_tweet in tweets:
+            tweets.remove(recent_tweet)
+
+    if len(recent_tweets)+1 > saving_limit:
+        del recent_tweets[0]
+
+    chosen_tweet = random.choice(tweets)
+    recent_tweets.append(chosen_tweet)
+
+    with open(recent_tweets_file, 'w') as f:
+        f.write('\n'.join(recent_tweets))
+
+    return random.choice(tweets)
 
 
 def break_text(text, limit=140, cont='\u2026'):
