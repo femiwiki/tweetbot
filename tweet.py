@@ -17,7 +17,7 @@ def main():
     tweets = [line[1:].strip() for line in lines if
               re.match(r'^\*\s+.+$', line)]
     tweet = random.choice(tweets)
-    lines = list(break_text(tweet, 140))
+    lines = list(break_text(tweet, 150))
 
     api = twitter.Api(
         consumer_key=os.environ['TWITTER_CONSUMER_KEY'],
@@ -88,7 +88,7 @@ def get_module_dir():
     return os.path.dirname(os.path.abspath(getsourcefile(lambda: 0)))
 
 
-def break_text(text, limit=140, cont='\u2026'):
+def break_text(text, limit=150, cont='\u2026'):
     if len(text) <= limit:
         yield text
         return
