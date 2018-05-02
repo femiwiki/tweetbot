@@ -17,7 +17,7 @@ def main():
     tweets = [line[1:].strip() for line in lines if
               re.match(r'^\*\s+.+$', line)]
     tweet = choice_tweet(tweets, 300)
-    lines = list(break_text(tweet, 150))
+    lines = list(break_text(tweet, 140))
 
     api = twitter.Api(
         consumer_key=os.environ['TWITTER_CONSUMER_KEY'],
