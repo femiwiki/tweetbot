@@ -15,7 +15,7 @@ def main():
     text = get_wikitext('페미위키:한줄인용', True)
     lines = text.split('\n')
     tweets = [line[1:].strip() for line in lines if
-              re.match(r'^\*\s+.+$', line)]
+              re.match(r'^\*\s*.+$', line)]
     tweet = choice_tweet(tweets, 300)
     lines = list(break_text(tweet, 140))
 
