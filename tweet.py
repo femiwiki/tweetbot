@@ -8,7 +8,7 @@ from inspect import getsourcefile
 
 import twitter
 
-URL_PREFIX = 'https://femiwiki.com/w/api.php?'
+URL_PREFIX = 'https://femiwiki.com/api.php?'
 
 
 def main():
