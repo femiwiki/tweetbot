@@ -12,6 +12,7 @@ export TWITTER_CONSUMER_KEY=xxxxxxxxxxxxxxxxxxxxxxxxx
 export TWITTER_CONSUMER_SECRET=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 export TWITTER_ACCESS_TOKEN=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 export TWITTER_ACCESS_TOKEN_SECRET=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+export WIKI_PASSWORD=xxxxxxxx
 python tweet.py
 ```
 

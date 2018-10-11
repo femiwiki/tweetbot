@@ -7,13 +7,14 @@ import urllib.parse
 from inspect import getsourcefile
 
 import twitter
+import mwclient
 
-URL_PREFIX = 'https://femiwiki.com/'
+URL = 'femiwiki.com'
 
 
 def main():
     text = get_wikitext('페미위키:한줄인용', True)
-    tweets = list(convert_to_tweet(text))
+    tweets = list(convert_to_tweets(text))
     tweet = choice_tweet(tweets, 300)
     thread = list(break_text(tweet, twitter.api.CHARACTER_LIMIT))
 
@@ -32,16 +33,18 @@ def get_wikitext(title, patrolled):
     """Returns wikitext of the document"""
     if patrolled:
         revid = get_patrolled_revid(title)
+        if revid == None:
+            return get_wikitext(title, False)
         url = (
-            URL_PREFIX +
-            'api.php?action=query&format=json&prop=revisions&'
+            'https://' + URL +
+            '/api.php?action=query&format=json&prop=revisions&'
             'rvprop=content&revids=' + str(revid)
         )
     else:
         quoted_title = urllib.parse.quote(title)
         url = (
-            URL_PREFIX +
-            'api.php?action=query&format=json&prop=revisions&'
+            'https://' + URL +
+            '/api.php?action=query&format=json&prop=revisions&'
             'rvprop=content&titles=' + quoted_title
         )
 
@@ -51,30 +54,39 @@ def get_wikitext(title, patrolled):
 
 def get_patrolled_revid(title):
     """Returns patrolled revision id of the document"""
-    revid_file = os.path.join(get_module_dir(), 'patrolled_rev_id')
-
     try:
         # Try to get rev id using API
-        quoted_title = urllib.parse.quote(title)
-        patrolled_logs_url = (
-            URL_PREFIX +
-            'api.php?action=query&format=json&list=logevents&leprop=details&'
-            'letype=patrol&lelimit=1&letitle=' +
-            quoted_title
-        )
-        obj = json_from_url(patrolled_logs_url)
-        revid = obj['query']['logevents'][0]['params']['curid']
+        # We need the "patrol" or "patrolmarks" right to request the patrolled flag.
+        site = mwclient.Site(URL, path='/')
+        user = '트윗봇'
+        pw = os.environ['WIKI_PASSWORD']
+        site.login(user, pw)
+        changes = []
+        rccontinue = None
+        while True:
+            result = site.api(
+                'query',
+                list='recentchanges',
+                rcnamespace=4,
+                rctype='edit',
+                rcshow='patrolled',
+                rcprop='title|ids',
+                rclimit='max',
+                rcgeneraterevisions=1,
+                rccontinue=rccontinue,
+            )
+            changes += result['query']['recentchanges']
+            if 'continue' not in result:
+                break
+            else:
+                rccontinue = result['continue']['rccontinue']
 
-        # Save revid for later use
-        with open(revid_file, 'w') as f:
-            f.write(str(revid))
+        revid = [ rc['revid'] for rc in changes if rc['title'] == title ]
+
+        return revid[0] if len(revid) == 0 else None
     except:
-        # Try to get revid from file.
         # (API returns nothing if recent logs don't contain patrol activity)
-        with open(revid_file, 'r') as f:
-            revid = f.readline()
-
-    return revid
+        return None
 
 
 def json_from_url(url):
@@ -85,7 +97,7 @@ def json_from_url(url):
 def get_module_dir():
     return os.path.dirname(os.path.abspath(getsourcefile(lambda: 0)))
 
-def convert_to_tweet(text):
+def convert_to_tweets(text):
     lines = text.split('\n')
 
     title = None
@@ -93,7 +105,7 @@ def convert_to_tweet(text):
         tweet = re.match(r'^\*\s*(.+)\s*$', line)
 
         if tweet:
-            yield ( tweet.group(1) + ' ' + URL_PREFIX + 'w/' + urllib.parse.quote(title) +
+            yield ( tweet.group(1) + ' http://' + URL + '/w/' + urllib.parse.quote(title) +
                     '?utm_source=twitter&utm_campaign=bot&utm_medium=tweet'
             )
         else:
