@@ -8,16 +8,14 @@ from inspect import getsourcefile
 
 import twitter
 
-URL_PREFIX = 'https://femiwiki.com/api.php?'
+URL_PREFIX = 'https://femiwiki.com/'
 
 
 def main():
     text = get_wikitext('페미위키:한줄인용', True)
-    lines = text.split('\n')
-    tweets = [line[1:].strip() for line in lines if
-              re.match(r'^\*\s*.+$', line)]
+    tweets = list(convert_to_tweet(text))
     tweet = choice_tweet(tweets, 300)
-    lines = list(break_text(tweet, 140))
+    thread = list(break_text(tweet, twitter.api.CHARACTER_LIMIT))
 
     api = twitter.Api(
         consumer_key=os.environ['TWITTER_CONSUMER_KEY'],
@@ -25,8 +23,8 @@ def main():
         access_token_key=os.environ['TWITTER_ACCESS_TOKEN'],
         access_token_secret=os.environ['TWITTER_ACCESS_TOKEN_SECRET'],
     )
-    status = api.PostUpdate(lines[0])
-    for line in lines[1:]:
+    status = api.PostUpdate(thread[0])
+    for line in thread[1:]:
         status = api.PostUpdate(line, in_reply_to_status_id=status.id)
 
 
@@ -36,14 +34,14 @@ def get_wikitext(title, patrolled):
         revid = get_patrolled_revid(title)
         url = (
             URL_PREFIX +
-            'action=query&format=json&prop=revisions&'
+            'api.php?action=query&format=json&prop=revisions&'
             'rvprop=content&revids=' + str(revid)
         )
     else:
         quoted_title = urllib.parse.quote(title)
         url = (
             URL_PREFIX +
-            'action=query&format=json&prop=revisions&'
+            'api.php?action=query&format=json&prop=revisions&'
             'rvprop=content&titles=' + quoted_title
         )
 
@@ -60,7 +58,7 @@ def get_patrolled_revid(title):
         quoted_title = urllib.parse.quote(title)
         patrolled_logs_url = (
             URL_PREFIX +
-            'action=query&format=json&list=logevents&leprop=details&'
+            'api.php?action=query&format=json&list=logevents&leprop=details&'
             'letype=patrol&lelimit=1&letitle=' +
             quoted_title
         )
@@ -87,6 +85,24 @@ def json_from_url(url):
 def get_module_dir():
     return os.path.dirname(os.path.abspath(getsourcefile(lambda: 0)))
 
+def convert_to_tweet(text):
+    lines = text.split('\n')
+
+    title = None
+    for line in lines:
+        tweet = re.match(r'^\*\s*(.+)\s*$', line)
+
+        if tweet:
+            yield ( tweet.group(1) + ' ' + URL_PREFIX + 'w/' + urllib.parse.quote(title) +
+                    '?utm_source=twitter&utm_campaign=bot&utm_medium=tweet'
+            )
+        else:
+            new_title = re.match(r'^=+\s*\[*([^=\]]+)\]*\s*=+$', line)
+            if new_title:
+                title = new_title.group(1)
+
+    return
+
 def choice_tweet(tweets, saving_limit=300):
     recent_tweets_file = os.path.join(get_module_dir(), 'recent_tweets')
 
@@ -112,15 +128,15 @@ def choice_tweet(tweets, saving_limit=300):
     return chosen_tweet
 
 
-def break_text(text, limit=150, cont='\u2026'):
-    if len(text) <= limit:
+def break_text(text, limit=280, cont='\u2026'):
+    if twitter.twitter_utils.calc_expected_status_length(text) <= limit:
         yield text
         return
 
     words = text.split(' ')
     line = ''
     for i, word in enumerate(words):
-        if len(line + ' ' + word) >= limit:
+        if twitter.twitter_utils.calc_expected_status_length(line + ' ' + word) >= limit:
             yield line + cont
             line = cont + word
         else:
