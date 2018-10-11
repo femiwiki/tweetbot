@@ -83,7 +83,7 @@ def get_patrolled_revid(title):
 
         revid = [ rc['revid'] for rc in changes if rc['title'] == title ]
 
-        return revid[0] if len(revid) == 0 else None
+        return revid[0] if len(revid) != 0 else None
     except:
         # (API returns nothing if recent logs don't contain patrol activity)
         return None
