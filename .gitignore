@@ -4,4 +4,5 @@ patrolled_rev_id
 recent_tweets
 *~
 /.venv/
+__pycache__/
 
