@@ -10,6 +10,7 @@ import twitter
 import mwclient
 
 URL = 'femiwiki.com'
+RECENT_TWEETS_DIR = '/var/tweetbot'
 
 
 def main():
@@ -116,7 +117,7 @@ def convert_to_tweets(text):
     return
 
 def choice_tweet(tweets, saving_limit=300):
-    recent_tweets_file = os.path.join(get_module_dir(), 'recent_tweets')
+    recent_tweets_file = os.path.join(RECENT_TWEETS_DIR, 'recent_tweets')
 
     try:
         with open(recent_tweets_file, 'r') as f:

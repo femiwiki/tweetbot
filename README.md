@@ -3,17 +3,18 @@
 [페미위키](https://femiwiki.com)의 [페미위키:한줄인용](페미위키:한줄인용) 문서에서 한 트윗을 가져와 지정된 트위터 계정으로 트윗합니다.
 
 ```bash
-python3 -mvenv .venv
-. .venv/bin/activate
-pip install --upgrade pip
-pip install -r requirements.txt
+docker build --tag femiwiki/tweetbot .
 
-export TWITTER_CONSUMER_KEY=xxxxxxxxxxxxxxxxxxxxxxxxx
-export TWITTER_CONSUMER_SECRET=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-export TWITTER_ACCESS_TOKEN=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-export TWITTER_ACCESS_TOKEN_SECRET=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-export WIKI_PASSWORD=xxxxxxxx
-python tweet.py
+docker run --detach \
+  --name tweetbot \
+  --restart always \
+  --volume /var/tweetbot:/var/tweetbot:rw \
+  -e "TWITTER_CONSUMER_KEY=xxxxxxxx" \
+  -e "TWITTER_CONSUMER_SECRET=xxxxxxxx" \
+  -e "TWITTER_ACCESS_TOKEN=xxxxxxxx" \
+  -e "TWITTER_ACCESS_TOKEN_SECRET=xxxxxxxx" \
+  -e "WIKI_PASSWORD=xxxxxxxx" \
+  femiwiki/tweetbot
 ```
 
 --------

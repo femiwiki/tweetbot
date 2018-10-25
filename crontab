@@ -1,0 +1,1 @@
+0 1,5,9,13,17,21 * * * /srv/tweetbot/tweet.sh >> /var/log/cron.log 2>&1
