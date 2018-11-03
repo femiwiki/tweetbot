@@ -1,22 +1,27 @@
 FROM python:3-slim-stretch
 
-COPY requirements.txt /root/tweetbot/
-COPY tweet.py /srv/tweetbot/
-COPY tweet.sh /srv/tweetbot/
-COPY crontab /root/tweetbot/
+# Install cron
+RUN apt-get update && apt-get -y install cron
+
+# Register a cronjob
+COPY crontab .
+RUN crontab crontab && rm crontab
+
+# Install dependencies
+WORKDIR /a
+COPY requirements.txt .
+RUN /usr/local/bin/python3 -m pip install --no-cache-dir -r requirements.txt && rm requirements.txt
+
+COPY tweet.py .
 
 VOLUME /var/tweetbot
 
-RUN /usr/local/bin/python3 -m pip install --no-cache-dir -r /root/tweetbot/requirements.txt \
-    && chmod +x /srv/tweetbot/tweet.sh \
-    && apt-get update \
-    && apt-get -y install cron \
-    && crontab /root/tweetbot/crontab \
-    && rm -rf /root/tweetbot
-
-CMD sed -i s/\$TWITTER_CONSUMER_KEY/${TWITTER_CONSUMER_KEY}/ /srv/tweetbot/tweet.sh \
-    && sed -i s/\$TWITTER_CONSUMER_SECRET/${TWITTER_CONSUMER_SECRET}/ /srv/tweetbot/tweet.sh \
-    && sed -i s/\$TWITTER_ACCESS_TOKEN/${TWITTER_ACCESS_TOKEN}/ /srv/tweetbot/tweet.sh \
-    && sed -i s/\$TWITTER_ACCESS_SECRET/${TWITTER_ACCESS_TOKEN_SECRET}/ /srv/tweetbot/tweet.sh \
-    && sed -i s/\$WIKI_PASSWORD/${WIKI_PASSWORD}/ /srv/tweetbot/tweet.sh \
-    && cron && sleep infinity
+CMD { \
+        echo "export TWITTER_CONSUMER_KEY='$TWITTER_CONSUMER_KEY'"; \
+        echo "export TWITTER_CONSUMER_SECRET='$TWITTER_CONSUMER_SECRET'"; \
+        echo "export TWITTER_ACCESS_TOKEN='$TWITTER_ACCESS_TOKEN'"; \
+        echo "export TWITTER_ACCESS_TOKEN_SECRET='$TWITTER_ACCESS_TOKEN_SECRET'"; \
+        echo "export WIKI_PASSWORD='$WIKI_PASSWORD'"; \
+    } > /a/env &&\
+    cron &&\
+    sleep infinity
