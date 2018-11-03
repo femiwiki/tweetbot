@@ -34,5 +34,6 @@ CMD { \
         echo "export TWITTER_ACCESS_TOKEN_SECRET='$TWITTER_ACCESS_TOKEN_SECRET'"; \
         echo "export WIKI_PASSWORD='$WIKI_PASSWORD'"; \
     } > /a/env &&\
+    touch /tmp/log &&\
     cron &&\
-    sleep infinity
+    tail -f /tmp/log

@@ -1,1 +1,1 @@
-0 1,5,9,13,17,21 * * * . /a/env && /usr/local/bin/python3 /a/tweet.py >> /var/log/cron.log 2>&1
+0 1,5,9,13,17,21 * * * . /a/env && /usr/local/bin/python3 /a/tweet.py >> /tmp/log 2>&1

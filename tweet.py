@@ -5,6 +5,7 @@ import re
 import urllib
 import urllib.parse
 from inspect import getsourcefile
+import logging
 
 import twitter
 import mwclient
@@ -14,6 +15,10 @@ RECENT_TWEETS_DIR = '/var/tweetbot'
 
 
 def main():
+    logging.basicConfig(level=logging.INFO)
+    logger = logging.getLogger('rankingbot')
+    logger.info('Start updating the ranking')
+
     text = get_wikitext('페미위키:한줄인용', True)
     tweets = list(convert_to_tweets(text))
     tweet = choice_tweet(tweets, 300)
@@ -28,6 +33,8 @@ def main():
     status = api.PostUpdate(thread[0])
     for line in thread[1:]:
         status = api.PostUpdate(line, in_reply_to_status_id=status.id)
+
+    logger.info('Successfully Tweeted')
 
 
 def get_wikitext(title, patrolled):
