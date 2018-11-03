@@ -17,6 +17,19 @@ docker run --detach \
   femiwiki/tweetbot
 ```
 
+```bash
+# Setup venv first
+pip install -r requirements.txt
+export TWITTER_CONSUMER_KEY=xxxxxxxx
+export TWITTER_CONSUMER_SECRET=xxxxxxxx
+export TWITTER_ACCESS_TOKEN=xxxxxxxx
+export TWITTER_ACCESS_TOKEN_SECRET=xxxxxxxx
+export WIKI_PASSWORD=xxxxxxxx
+python tweet.py
+python tests.py
+
+```
+
 --------
 
 The source code of *ranking-bot* is primarily distributed under the terms of
