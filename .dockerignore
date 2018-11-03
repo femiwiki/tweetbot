@@ -7,3 +7,5 @@ recent_tweets
 /.venv/
 __pycache__/
 
+# Git
+/.git/
