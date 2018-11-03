@@ -1,2 +1,2 @@
-python-twitter==3.4.2
+python-twitter==3.5
 mwclient==0.9.1

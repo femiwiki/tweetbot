@@ -2,13 +2,14 @@ import json
 import os
 import random
 import re
-import urllib
-import urllib.parse
-from inspect import getsourcefile
 import logging
+from urllib import parse, request
+from inspect import getsourcefile
 
 import twitter
 import mwclient
+
+logger = logging.getLogger(__name__)
 
 URL = 'femiwiki.com'
 RECENT_TWEETS_DIR = '/var/tweetbot'
@@ -16,8 +17,7 @@ RECENT_TWEETS_DIR = '/var/tweetbot'
 
 def main():
     logging.basicConfig(level=logging.INFO)
-    logger = logging.getLogger('rankingbot')
-    logger.info('Start updating the ranking')
+    logger.info('Starting the tweetbot')
 
     text = get_wikitext('페미위키:한줄인용', True)
     tweets = list(convert_to_tweets(text))
@@ -41,19 +41,17 @@ def get_wikitext(title, patrolled):
     """Returns wikitext of the document"""
     if patrolled:
         revid = get_patrolled_revid(title)
-        if revid == None:
+        if revid is None:
             return get_wikitext(title, False)
         url = (
-            'https://' + URL +
-            '/api.php?action=query&format=json&prop=revisions&'
-            'rvprop=content&revids=' + str(revid)
+            f'https://{URL}/api.php?action=query&format=json&prop=revisions&' +
+            f'rvprop=content&revids={revid}'
         )
     else:
-        quoted_title = urllib.parse.quote(title)
+        quoted_title = parse.quote(title)
         url = (
-            'https://' + URL +
-            '/api.php?action=query&format=json&prop=revisions&'
-            'rvprop=content&titles=' + quoted_title
+            f'https://{URL}/api.php?action=query&format=json&prop=revisions&' +
+            f'rvprop=content&titles={quoted_title}'
         )
 
     obj = json_from_url(url)
@@ -89,21 +87,22 @@ def get_patrolled_revid(title):
             else:
                 rccontinue = result['continue']['rccontinue']
 
-        revid = [ rc['revid'] for rc in changes if rc['title'] == title ]
+        revid = [rc['revid'] for rc in changes if rc['title'] == title]
 
         return revid[0] if len(revid) != 0 else None
-    except:
+    except Exception:
         # (API returns nothing if recent logs don't contain patrol activity)
         return None
 
 
 def json_from_url(url):
-    with urllib.request.urlopen(url) as res:
+    with request.urlopen(url) as res:
         return json.loads(res.read().decode('utf-8'))
 
 
 def get_module_dir():
     return os.path.dirname(os.path.abspath(getsourcefile(lambda: 0)))
+
 
 def convert_to_tweets(text):
     lines = text.split('\n')
@@ -113,15 +112,15 @@ def convert_to_tweets(text):
         tweet = re.match(r'^\*\s*(.+)\s*$', line)
 
         if tweet:
-            yield ( tweet.group(1) + ' http://' + URL + '/w/' + urllib.parse.quote(title) +
-                    '?utm_source=twitter&utm_campaign=bot&utm_medium=tweet'
+            yield (
+                f'{tweet.group(1)} http://{URL}/w/{parse.quote(title)}' +
+                '?utm_source=twitter&utm_campaign=bot&utm_medium=tweet'
             )
         else:
             new_title = re.match(r'^=+\s*\[*([^=\]]+)\]*\s*=+$', line)
             if new_title:
                 title = new_title.group(1)
 
-    return
 
 def choice_tweet(tweets, saving_limit=300):
     recent_tweets_file = os.path.join(RECENT_TWEETS_DIR, 'recent_tweets')
@@ -169,7 +168,3 @@ def break_text(text, limit=280, cont='\u2026'):
 
     if len(line):
         yield line
-
-
-if __name__ == '__main__':
-    main()

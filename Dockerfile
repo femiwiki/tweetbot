@@ -1,4 +1,16 @@
-FROM python:3-slim-stretch
+#
+# Build
+#
+FROM python:3-slim
+WORKDIR /a
+COPY setup.py .
+COPY tweetbot tweetbot
+RUN python setup.py bdist_wheel
+
+#
+# Run
+#
+FROM python:3-slim
 
 # Set timezone
 ENV TZ=Asia/Seoul
@@ -21,19 +33,13 @@ RUN crontab crontab && rm crontab
 # Install dependencies
 WORKDIR /a
 COPY requirements.txt .
-RUN /usr/local/bin/python3 -m pip install --no-cache-dir -r requirements.txt && rm requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt && rm requirements.txt
 
-COPY tweet.py .
+# Install tweetbot
+COPY --from=0 /a/dist/*.whl .
+RUN pip install --no-cache-dir tweetbot-*.whl
+
+COPY docker-cmd .
+CMD ["/a/docker-cmd"]
 
 VOLUME /var/tweetbot
-
-CMD { \
-        echo "export TWITTER_CONSUMER_KEY='$TWITTER_CONSUMER_KEY'"; \
-        echo "export TWITTER_CONSUMER_SECRET='$TWITTER_CONSUMER_SECRET'"; \
-        echo "export TWITTER_ACCESS_TOKEN='$TWITTER_ACCESS_TOKEN'"; \
-        echo "export TWITTER_ACCESS_TOKEN_SECRET='$TWITTER_ACCESS_TOKEN_SECRET'"; \
-        echo "export WIKI_PASSWORD='$WIKI_PASSWORD'"; \
-    } > /a/env &&\
-    touch /tmp/log &&\
-    cron &&\
-    tail -f /tmp/log

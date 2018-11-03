@@ -1,11 +1,12 @@
-patrolled_rev_id
-recent_tweets
-*~
-
 # Python
-.python-version
 /.venv/
-__pycache__/
+/tweetbot.egg-info/
+/build/
+/dist/
+
+# Temporary files
+/patrolled_rev_id
+/recent_tweets
 
 # Git
 /.git/
