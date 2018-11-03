@@ -17,6 +17,8 @@ docker run --detach \
   femiwiki/tweetbot
 ```
 
+Development
+
 ```bash
 # Setup venv first
 pip install -r requirements.txt
@@ -27,7 +29,13 @@ export TWITTER_ACCESS_TOKEN_SECRET=xxxxxxxx
 export WIKI_PASSWORD=xxxxxxxx
 python tweet.py
 python tests.py
+```
 
+Lint
+
+```bash
+pip install flake8
+flake8
 ```
 
 --------
