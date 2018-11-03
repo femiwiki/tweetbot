@@ -7,7 +7,7 @@
 docker run --detach \
   --name tweetbot \
   --restart always \
-  --volume /var/tweetbot:/var/tweetbot:rw \
+  --volume /var/tweetbot:/var/tweetbot \
   -e 'TWITTER_CONSUMER_KEY=xxxxxxxx' \
   -e 'TWITTER_CONSUMER_SECRET=xxxxxxxx' \
   -e 'TWITTER_ACCESS_TOKEN=xxxxxxxx' \
