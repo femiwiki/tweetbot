@@ -1,5 +1,9 @@
 FROM python:3-slim-stretch
 
+# Set timezone
+ENV TZ=Asia/Seoul
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
 # Add Tini
 # See https://github.com/krallin/tini for the further details
 ENV TINI_VERSION v0.18.0
