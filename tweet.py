@@ -66,7 +66,7 @@ def get_patrolled_revid(title):
         # Try to get rev id using API
         # We need the "patrol" or "patrolmarks" right to request the patrolled flag.
         site = mwclient.Site(URL, path='/')
-        user = '트윗봇'
+        user = '트윗봇@트윗봇'
         pw = os.environ['WIKI_PASSWORD']
         site.login(user, pw)
         changes = []
