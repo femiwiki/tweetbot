@@ -1,5 +1,12 @@
 FROM python:3-slim-stretch
 
+# Add Tini
+# See https://github.com/krallin/tini for the further details
+ENV TINI_VERSION v0.18.0
+ADD https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini /tini
+RUN chmod +x /tini
+ENTRYPOINT ["/tini", "--"]
+
 # Install cron
 RUN apt-get update && apt-get -y install cron
 
