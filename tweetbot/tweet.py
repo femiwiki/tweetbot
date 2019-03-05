@@ -113,7 +113,7 @@ def convert_to_tweets(text):
 
         if tweet:
             yield (
-                f'{tweet.group(1)} http://{URL}/w/{parse.quote(title)}' +
+                f'{tweet.group(1)} https://{URL}/w/{parse.quote(title)}' +
                 '?utm_source=twitter&utm_campaign=bot&utm_medium=tweet'
             )
         else:
