@@ -6,8 +6,9 @@ import logging
 from urllib import parse, request
 from inspect import getsourcefile
 
-import twitter
 import mwclient
+import twitter
+import facebook
 
 logger = logging.getLogger(__name__)
 
@@ -20,10 +21,12 @@ def main():
     logger.info('Starting the tweetbot')
 
     text = get_wikitext('페미위키:한줄인용', True)
-    tweets = list(convert_to_tweets(text))
-    tweet = choice_tweet(tweets, 300)
-    thread = list(break_text(tweet, twitter.api.CHARACTER_LIMIT))
+    quotations = list(convert_to_quotations(text))
+    quotation = choice_quotation(quotations, 300)
 
+    # Post for Twitter
+    thread = list(break_text(f'{quotation}&utm_source=twitter&utm_medium=tweet',
+                             twitter.api.CHARACTER_LIMIT))
     api = twitter.Api(
         consumer_key=os.environ['TWITTER_CONSUMER_KEY'],
         consumer_secret=os.environ['TWITTER_CONSUMER_SECRET'],
@@ -35,6 +38,13 @@ def main():
         status = api.PostUpdate(line, in_reply_to_status_id=status.id)
 
     logger.info('Successfully Tweeted')
+
+    # Post for Facebook
+    pos = quotation.find('https://')
+
+    graph = facebook.GraphAPI(access_token=os.environ['FACEBOOK_PAGE_TOKEN'], version="3.1")
+    graph.put_object(parent_object='femiwikidotcom', connection_name='feed',
+                     message=quotation[:pos], link=f'{quotation[pos:]}&utm_source=facebook&utm_medium=facebook_post')
 
 
 def get_wikitext(title, patrolled):
@@ -104,7 +114,7 @@ def get_module_dir():
     return os.path.dirname(os.path.abspath(getsourcefile(lambda: 0)))
 
 
-def convert_to_tweets(text):
+def convert_to_quotations(text):
     lines = text.split('\n')
 
     title = None
@@ -113,8 +123,7 @@ def convert_to_tweets(text):
 
         if tweet:
             yield (
-                f'{tweet.group(1)} https://{URL}/w/{parse.quote(title)}' +
-                '?utm_source=twitter&utm_campaign=bot&utm_medium=tweet'
+                f'{tweet.group(1)} https://{URL}/w/{parse.quote(title)}?utm_campaign=bot'
             )
         else:
             new_title = re.match(r'^=+\s*\[*([^=\]]+)\]*\s*=+$', line)
@@ -122,7 +131,7 @@ def convert_to_tweets(text):
                 title = new_title.group(1)
 
 
-def choice_tweet(tweets, saving_limit=300):
+def choice_quotation(tweets, saving_limit=300):
     recent_tweets_file = os.path.join(RECENT_TWEETS_DIR, 'recent_tweets')
 
     try:

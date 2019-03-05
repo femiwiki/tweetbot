@@ -3,16 +3,20 @@
 [페미위키]의 [페미위키:한줄인용] 문서에서 한 트윗을 가져와 지정된 트위터
 계정으로 트윗합니다.
 
+[페미위키]의 [페미위키:한줄인용] 문서에서 한 문장을 가져와 지정된 트위터
+계정 및 페이스북 페이지로 트윗합니다.
+
 ```bash
 docker run --detach \
   --name tweetbot \
   --restart always \
   --volume /var/tweetbot:/var/tweetbot \
+  -e 'WIKI_PASSWORD=xxxxxxxx' \
   -e 'TWITTER_CONSUMER_KEY=xxxxxxxx' \
   -e 'TWITTER_CONSUMER_SECRET=xxxxxxxx' \
   -e 'TWITTER_ACCESS_TOKEN=xxxxxxxx' \
   -e 'TWITTER_ACCESS_TOKEN_SECRET=xxxxxxxx' \
-  -e 'WIKI_PASSWORD=xxxxxxxx' \
+  -e 'FACEBOOK_PAGE_TOKEN=xxxxxxxx' \
   femiwiki/tweetbot
 ```
 

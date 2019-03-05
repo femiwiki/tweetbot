@@ -1,2 +1,3 @@
-python-twitter==3.5
 mwclient==0.9.1
+python-twitter==3.5
+facebook-sdk==3.1
