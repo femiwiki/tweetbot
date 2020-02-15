@@ -10,16 +10,22 @@ import mwclient
 import twitter
 import facebook
 
+
 logger = logging.getLogger(__name__)
 
 URL = 'femiwiki.com'
-RECENT_TWEETS_DIR = '/var/tweetbot'
+RECENT_TWEETS_PAGE_NAME = '페미위키:한줄인용/최근 트윗'
+
+SITE = mwclient.Site(URL, path='/')
+USER = '트윗봇@트윗봇'
+PW = os.environ['WIKI_PASSWORD']
 
 
 def main():
     logging.basicConfig(level=logging.INFO)
     logger.info('Starting the tweetbot')
 
+    SITE.login(USER, PW)
     text = get_wikitext('페미위키:한줄인용', True)
     quotations = list(convert_to_quotations(text))
     quotation = choice_quotation(quotations, 300)
@@ -79,14 +85,11 @@ def get_patrolled_revid(title):
     try:
         # Try to get rev id using API
         # We need the "patrol" or "patrolmarks" right to request the patrolled flag.
-        site = mwclient.Site(URL, path='/')
-        user = '트윗봇@트윗봇'
-        pw = os.environ['WIKI_PASSWORD']
-        site.login(user, pw)
+
         changes = []
         rccontinue = None
         while True:
-            result = site.api(
+            result = SITE.api(
                 'query',
                 list='recentchanges',
                 rcnamespace=4,
@@ -138,14 +141,8 @@ def convert_to_quotations(text):
 
 
 def choice_quotation(tweets, saving_limit=300):
-    recent_tweets_file = os.path.join(RECENT_TWEETS_DIR, 'recent_tweets')
-
-    try:
-        with open(recent_tweets_file, 'r') as f:
-            recent_tweets = f.read().split('\n')
-    except IOError:
-        recent_tweets = []
-
+    page = SITE.pages[RECENT_TWEETS_PAGE_NAME]
+    recent_tweets = page.text().split('\n')
     for recent_tweet in recent_tweets:
         if recent_tweet in tweets:
             tweets.remove(recent_tweet)
@@ -156,8 +153,8 @@ def choice_quotation(tweets, saving_limit=300):
     chosen_tweet = random.choice(tweets)
     recent_tweets.append(chosen_tweet)
 
-    with open(recent_tweets_file, 'w') as f:
-        f.write('\n'.join(recent_tweets))
+    new_wikitext = '\n'.join(recent_tweets)
+    page.save(new_wikitext, '최근 트윗 갱신')
 
     return chosen_tweet
 

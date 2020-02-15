@@ -1,3 +1,2 @@
-mwclient==0.9.1
+mwclient==0.10.0
 python-twitter==3.5
-facebook-sdk==3.1
