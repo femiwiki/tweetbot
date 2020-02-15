@@ -8,7 +8,6 @@ from inspect import getsourcefile
 
 import mwclient
 import twitter
-import facebook
 
 
 logger = logging.getLogger(__name__)
@@ -44,19 +43,6 @@ def main():
         status = api.PostUpdate(line, in_reply_to_status_id=status.id)
 
     logger.info('Successfully tweeted')
-
-    '''
-    Disabled Temporarily
-    @See https://github.com/femiwiki/tweetbot/issues/8
-    '''
-    # Post for Facebook
-    # pos = quotation.find('https://')
-
-    # graph = facebook.GraphAPI(access_token=os.environ['FACEBOOK_PAGE_TOKEN'], version="3.1")
-    # graph.put_object(parent_object='femiwikidotcom', connection_name='feed',
-    #                  message=quotation[:pos], link=f'{quotation[pos:]}&utm_source=facebook&utm_medium=facebook_post')
-
-    # logger.info('Successfully posted to Facebook')
 
 
 def get_wikitext(title, patrolled):
