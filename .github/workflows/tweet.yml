@@ -1,0 +1,42 @@
+name: Tweet
+
+on:
+  push:
+  # 테스트 중 바로 트윗을 위한 임시 주석 처리
+  #   branches:
+  #     - master
+  # schedule:
+  #   # * is a special character in YAML so you have to quote this string
+  #   - cron:  '0 16,20,0,4,8,12 * * *'
+
+jobs:
+  tweet:
+    runs-on: ubuntu-18.04
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python
+      uses: actions/setup-python@v1
+      with:
+        python-version: '3.x'
+    - uses: actions/cache@v1
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+    - name: Build
+      run: python setup.py bdist_wheel
+    - name: Install dependancies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install dist/tweetbot-*.whl
+    - name: Tweet
+      run: python -m tweetbot
+      env:
+        TWITTER_CONSUMER_KEY: ${{ secrets.TWITTER_CONSUMER_KEY }}
+        TWITTER_CONSUMER_SECRET: ${{ secrets.TWITTER_CONSUMER_SECRET }}
+        TWITTER_ACCESS_TOKEN: ${{ secrets.TWITTER_ACCESS_TOKEN }}
+        TWITTER_ACCESS_TOKEN_SECRET: ${{ secrets.TWITTER_ACCESS_TOKEN_SECRET }}
+        WIKI_PASSWORD: ${{ secrets.WIKI_PASSWORD }}
+
