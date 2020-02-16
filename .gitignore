@@ -3,6 +3,7 @@
 /tweetbot.egg-info/
 /build/
 /dist/
+/tests/__pycache__/
 
 # Temporary files
 /recent_tweets
