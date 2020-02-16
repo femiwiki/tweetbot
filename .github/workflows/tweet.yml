@@ -2,12 +2,11 @@ name: Tweet
 
 on:
   push:
-  # 테스트 중 바로 트윗을 위한 임시 주석 처리
-  #   branches:
-  #     - master
-  # schedule:
-  #   # * is a special character in YAML so you have to quote this string
-  #   - cron:  '0 16,20,0,4,8,12 * * *'
+    branches:
+      - master
+  schedule:
+    # * is a special character in YAML so you have to quote this string
+    - cron:  '0 16,20,0,4,8,12 * * *'
 
 jobs:
   tweet:
