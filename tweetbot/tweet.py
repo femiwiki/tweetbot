@@ -18,6 +18,8 @@ RECENT_TWEETS_PAGE_NAME = '페미위키:한줄인용/최근 트윗'
 SITE = mwclient.Site(URL, path='/')
 USER = '트윗봇@트윗봇'
 PW = os.environ['WIKI_PASSWORD']
+TWITTER_BOT_USER_ID = 778536915834286080
+TWITTER_MANUAL_USER_ID = 1180889936666353666
 
 
 def main():
@@ -41,6 +43,12 @@ def main():
     status = api.PostUpdate(thread[0])
     for line in thread[1:]:
         status = api.PostUpdate(line, in_reply_to_status_id=status.id)
+
+    # Retweet tweets published by official Femiwiki account
+    manual_timeline = api.GetUserTimeline(user_id=TWITTER_MANUAL_USER_ID,
+                                          include_rts=False, trim_user=True, exclude_replies=True)
+    for tweet in manual_timeline:
+        api.PostRetweet(tweet, trim_user=True)
 
     logger.info('Successfully tweeted')
 
