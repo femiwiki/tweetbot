@@ -1,4 +1,4 @@
-[tweetbot]
+[tweetbot] [![Github checks status]][github checks link] [![codecov.io status]][codecov.io link]
 ========
 
 [Github Action]을 통해 [페미위키]의 [페미위키:한줄인용] 문서에서 한 문장을 가져와 지정된 트위터
@@ -10,7 +10,10 @@ Development
 --------
 ```bash
 # Setup venv first
+# python -m venv .venv
+# source .venv/bin/activate
 
+# Install dependencies
 pip install -r requirements.txt
 pip install --editable .
 
@@ -43,6 +46,10 @@ The source code of *tweetbot* is primarily distributed under the terms of
 the [GNU Affero General Public License v3.0] or any later version. See
 [COPYRIGHT] for details.
 
+[github checks status]: https://badgen.net/github/checks/femiwiki/tweetbot
+[github checks link]: https://github.com/femiwiki/tweetbot/actions
+[codecov.io status]: https://badgen.net/codecov/c/github/femiwiki/tweetbot
+[codecov.io link]: https://codecov.io/gh/femiwiki/tweetbot
 [Github Action]: https://github.com/features/actions
 [tweetbot]: https://femiwiki.com/w/%EC%82%AC%EC%9A%A9%EC%9E%90:%ED%8A%B8%EC%9C%97%EB%B4%87
 [페미위키]: https://femiwiki.com

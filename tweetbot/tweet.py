@@ -17,21 +17,20 @@ RECENT_TWEETS_PAGE_NAME = '페미위키:한줄인용/최근 트윗'
 
 SITE = mwclient.Site(URL, path='/')
 USER = '트윗봇@트윗봇'
-PW = os.environ['WIKI_PASSWORD']
 
 
 def main():
     logging.basicConfig(level=logging.INFO)
     logger.info('Starting the tweetbot')
 
-    SITE.login(USER, PW)
+    if 'WIKI_PASSWORD' in os.environ:
+        SITE.login(USER, os.environ['WIKI_PASSWORD'])
     text = get_wikitext('페미위키:한줄인용', True)
     quotations = list(convert_to_quotations(text))
     quotation = choice_quotation(quotations, 300)
 
     # Post for Twitter
-    thread = list(break_text(f'{quotation}&utm_source=twitter&utm_medium=tweet',
-                             twitter.api.CHARACTER_LIMIT))
+    thread = list(break_text(f'{quotation}&utm_source=twitter&utm_medium=tweet', twitter.api.CHARACTER_LIMIT))
     api = twitter.Api(
         consumer_key=os.environ['TWITTER_CONSUMER_KEY'],
         consumer_secret=os.environ['TWITTER_CONSUMER_SECRET'],
@@ -52,14 +51,12 @@ def get_wikitext(title, patrolled):
         if revid is None:
             return get_wikitext(title, False)
         url = (
-            f'https://{URL}/api.php?action=query&format=json&prop=revisions&' +
-            f'rvprop=content&revids={revid}'
+            f'https://{URL}/api.php?action=query&format=json&prop=revisions&' + f'rvprop=content&revids={revid}'
         )
     else:
         quoted_title = parse.quote(title)
         url = (
-            f'https://{URL}/api.php?action=query&format=json&prop=revisions&' +
-            f'rvprop=content&titles={quoted_title}'
+            f'https://{URL}/api.php?action=query&format=json&prop=revisions&' + f'rvprop=content&titles={quoted_title}'
         )
 
     obj = json_from_url(url)
@@ -133,7 +130,7 @@ def choice_quotation(tweets, saving_limit=300):
         if recent_tweet in tweets:
             tweets.remove(recent_tweet)
 
-    if len(recent_tweets)+1 > saving_limit:
+    if len(recent_tweets) + 1 > saving_limit:
         del recent_tweets[0]
 
     chosen_tweet = random.choice(tweets)

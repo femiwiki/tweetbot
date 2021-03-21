@@ -4,6 +4,8 @@
 /build/
 /dist/
 /tests/__pycache__/
+.coverage
+coverage.xml
 
 # Temporary files
 /recent_tweets
