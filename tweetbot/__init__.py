@@ -146,5 +146,5 @@ def break_text(text, limit=280, cont='\u2026'):
 
 
 __all__ = [
-    main
+    "main"
 ]
