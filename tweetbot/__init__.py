@@ -3,7 +3,6 @@ import random
 import re
 import logging
 from urllib import parse, request
-from inspect import getsourcefile
 
 import mwclient
 import twitter
@@ -55,7 +54,8 @@ def get_wikitext(title, stable):
         quoted_title = parse.quote(title)
         url = url + f'title={quoted_title}'
 
-    return wikitext_from_url(url).decode('utf-8')
+    with request.urlopen(url) as res:
+        return res.read().decode('utf-8')
 
 
 def get_stable_revid(title):
@@ -75,15 +75,6 @@ def get_stable_revid(title):
     except Exception:
         # (API returns nothing if recent logs don't contain patrol activity)
         return None
-
-
-def wikitext_from_url(url):
-    with request.urlopen(url) as res:
-        return res.read()
-
-
-def get_module_dir():
-    return os.path.dirname(os.path.abspath(getsourcefile(lambda: 0)))
 
 
 def convert_to_quotations(text):
