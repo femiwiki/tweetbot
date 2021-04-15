@@ -44,7 +44,7 @@ jobs:
           python -m pip install "dist/tweetbot-0.0.0-py3-none-any.whl"
 
       - name: Tweet
-        if: github.repository_owner == 'femiwiki' && github.ref == 'refs/heads/main' && github.event == 'schedule'
+        if: github.repository_owner == 'femiwiki' && github.ref == 'refs/heads/main' && github.event_name == 'schedule'
         run: python -m tweetbot
         env:
           TWITTER_CONSUMER_KEY: ${{ secrets.TWITTER_CONSUMER_KEY }}
