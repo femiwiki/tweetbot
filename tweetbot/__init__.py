@@ -55,7 +55,7 @@ def get_wikitext(title, stable):
         quoted_title = parse.quote(title)
         url = url + f'title={quoted_title}'
 
-    return wikitext_from_url(url)
+    return wikitext_from_url(url).decode('utf-8')
 
 
 def get_stable_revid(title):
