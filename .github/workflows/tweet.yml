@@ -4,34 +4,51 @@ on:
   schedule:
     # * is a special character in YAML so you have to quote this string
     - cron: '0 16,20,0,4,8,12 * * *'
+  push:
+  pull_request:
 
 jobs:
   tweet:
     runs-on: ubuntu-18.04
     steps:
-    - uses: actions/checkout@v2
-    - name: Set up Python
-      uses: actions/setup-python@v2
-      with:
-        python-version: '3.x'
-    - uses: actions/cache@v2
-      with:
-        path: ~/.cache/pip
-        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
-        restore-keys: |
-          ${{ runner.os }}-pip-
-    - name: Install dependencies
-      run: |
-        python -m pip install wheel
-        python setup.py bdist_wheel
-        python -m pip install -r requirements.txt
-        python -m pip install dist/tweetbot-*.whl
-    - name: Tweet
-      run: python -m tweetbot
-      env:
-        TWITTER_CONSUMER_KEY: ${{ secrets.TWITTER_CONSUMER_KEY }}
-        TWITTER_CONSUMER_SECRET: ${{ secrets.TWITTER_CONSUMER_SECRET }}
-        TWITTER_ACCESS_TOKEN: ${{ secrets.TWITTER_ACCESS_TOKEN }}
-        TWITTER_ACCESS_TOKEN_SECRET: ${{ secrets.TWITTER_ACCESS_TOKEN_SECRET }}
-        WIKI_PASSWORD: ${{ secrets.WIKI_PASSWORD }}
+      - uses: actions/checkout@v2
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
 
+      - name: Cache dependencies
+        uses: actions/cache@v2
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Cache tweetbot
+        id: cache-tweetbot
+        uses: actions/cache@v2
+        with:
+          path: dist/tweetbot-0.0.0-py3-none-any.whl
+          key: {{ github.sha }}
+
+      - name: Build tweetbot
+        if: steps.cache-tweetbot.outputs.cache-hit != 'true'
+        run: |
+          python -m pip install wheel
+          python setup.py bdist_wheel
+
+      - name: Install dependencies
+        run: |
+          python -m pip install -r requirements.txt
+          python -m pip install "dist/tweetbot-0.0.0-py3-none-any.whl"
+
+      - name: Tweet
+        if: github.repository_owner == 'femiwiki' && github.ref == 'refs/heads/main' && github.event == 'schedule'
+        run: python -m tweetbot
+        env:
+          TWITTER_CONSUMER_KEY: ${{ secrets.TWITTER_CONSUMER_KEY }}
+          TWITTER_CONSUMER_SECRET: ${{ secrets.TWITTER_CONSUMER_SECRET }}
+          TWITTER_ACCESS_TOKEN: ${{ secrets.TWITTER_ACCESS_TOKEN }}
+          TWITTER_ACCESS_TOKEN_SECRET: ${{ secrets.TWITTER_ACCESS_TOKEN_SECRET }}
+          WIKI_PASSWORD: ${{ secrets.WIKI_PASSWORD }}
