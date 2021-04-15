@@ -30,7 +30,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: dist/tweetbot-0.0.0-py3-none-any.whl
-          key: {{ github.sha }}
+          key: ${{ github.sha }}
 
       - name: Build tweetbot
         if: steps.cache-tweetbot.outputs.cache-hit != 'true'
