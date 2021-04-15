@@ -1,4 +1,3 @@
-import json
 import os
 import random
 import re
@@ -44,62 +43,43 @@ def main():
     logger.info('Successfully tweeted')
 
 
-def get_wikitext(title, patrolled):
-    """Returns wikitext of the document"""
-    if patrolled:
-        revid = get_patrolled_revid(title)
+def get_wikitext(title, stable):
+    """Returns wikitext of the title"""
+    url = f'https://{URL}/index.php?action=raw&'
+    if stable:
+        revid = get_stable_revid(title)
         if revid is None:
             return get_wikitext(title, False)
-        url = (
-            f'https://{URL}/api.php?action=query&format=json&prop=revisions&' + f'rvprop=content&revids={revid}'
-        )
+        url = url + f'oldid={revid}'
     else:
         quoted_title = parse.quote(title)
-        url = (
-            f'https://{URL}/api.php?action=query&format=json&prop=revisions&' + f'rvprop=content&titles={quoted_title}'
-        )
+        url = url + f'title={quoted_title}'
 
-    obj = json_from_url(url)
-    return next(iter(obj['query']['pages'].values()))['revisions'][0]['*']
+    return wikitext_from_url(url)
 
 
-def get_patrolled_revid(title):
-    """Returns patrolled revision id of the document"""
+def get_stable_revid(title):
+    """Returns the stable revision id of the given title"""
     try:
-        # Try to get rev id using API
-        # We need the "patrol" or "patrolmarks" right to request the patrolled flag.
+        # Try to get the stable rev id using API
+        result = SITE.api(
+            'query',
+            prop='info|flagged',
+            titles=title
+        )
+        page = next(iter(result['query']['pages'].values()[0]))
 
-        changes = []
-        rccontinue = None
-        while True:
-            result = SITE.api(
-                'query',
-                list='recentchanges',
-                rcnamespace=4,
-                rctype='edit',
-                rcshow='patrolled',
-                rcprop='title|ids',
-                rclimit='max',
-                rcgeneraterevisions=1,
-                rccontinue=rccontinue,
-            )
-            changes += result['query']['recentchanges']
-            if 'continue' not in result:
-                break
-            else:
-                rccontinue = result['continue']['rccontinue']
-
-        revid = [rc['revid'] for rc in changes if rc['title'] == title]
-
-        return revid[0] if len(revid) != 0 else None
+        if 'flagged' in page and 'stable_revid' in page['flagged']:
+            return page['flagged']['stable_revid']
+        return page['lastrevid']
     except Exception:
         # (API returns nothing if recent logs don't contain patrol activity)
         return None
 
 
-def json_from_url(url):
+def wikitext_from_url(url):
     with request.urlopen(url) as res:
-        return json.loads(res.read().decode('utf-8'))
+        return res.read()
 
 
 def get_module_dir():
@@ -163,6 +143,7 @@ def break_text(text, limit=280, cont='\u2026'):
 
     if len(line):
         yield line
+
 
 __all__ = [
     main
