@@ -3,10 +3,13 @@ import tweetbot
 import os
 from unittest import mock
 
+
 class MockApi:
     def PostUpdate(self, text):
-        assert text == "예문 1 https://femiwiki.com/w/%EB%AC%B8%EC%84%9C%201%20?utm_campaign=bot&utm_source=twitter&utm_medium=tweet"
-        return {"id":0}
+        assert text == "예문 1 https://femiwiki.com/w/%EB%AC%B8%EC%84%9C%201%20" \
+            + "?utm_campaign=bot&utm_source=twitter&utm_medium=tweet"
+        return {"id": 0}
+
 
 class MockResponse:
     def read(self):
@@ -30,7 +33,7 @@ class MockResponse:
 def test_main(mocker):
     mocker.patch(
         'mwclient.page.Page.save',
-        return_value=None #
+        return_value=None
     )
     mocker.patch(
         'mwclient.listing.PageList',
