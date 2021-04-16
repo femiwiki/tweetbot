@@ -1,2 +1,2 @@
-mwclient==0.10.0
+mwclient==0.10.1
 python-twitter==3.5
