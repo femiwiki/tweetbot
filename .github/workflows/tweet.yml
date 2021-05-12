@@ -18,7 +18,7 @@ jobs:
           python-version: '3.x'
 
       - name: Cache dependencies
-        uses: actions/cache@v2
+        uses: actions/cache@v2.1.5
         with:
           path: ~/.cache/pip
           key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
@@ -27,7 +27,7 @@ jobs:
 
       - name: Cache tweetbot
         id: cache-tweetbot
-        uses: actions/cache@v2
+        uses: actions/cache@v2.1.5
         with:
           path: dist/tweetbot-0.0.0-py3-none-any.whl
           key: ${{ github.sha }}
