@@ -31,4 +31,4 @@ jobs:
       - name: Test
         run: pytest --cov-report=xml --cov=./
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v2.0.1
+        uses: codecov/codecov-action@v2
