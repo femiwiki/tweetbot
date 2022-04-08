@@ -27,7 +27,7 @@ jobs:
 
       - name: Cache tweetbot
         id: cache-tweetbot
-        uses: actions/cache@v3.0.1
+        uses: actions/cache@v3
         with:
           path: dist/tweetbot-0.0.0-py3-none-any.whl
           key: ${{ github.sha }}
