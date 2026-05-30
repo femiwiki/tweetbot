@@ -2,7 +2,7 @@ import logging
 import os
 import random
 import re
-from urllib import parse, request
+from urllib import parse
 
 import mwclient
 import twitter
@@ -12,16 +12,24 @@ logger = logging.getLogger(__name__)
 URL = "femiwiki.com"
 RECENT_TWEETS_PAGE_NAME = "페미위키:한줄인용/최근 트윗"
 
-SITE = mwclient.Site(URL, path="/")
-USER = "트윗봇@트윗봇"
+try:
+    SITE = mwclient.Site(
+        URL,
+        path="/",
+        # XXX: mwclient가 OAuth 2.0을 지원하지 않아 OAuth 1.0을 사용`
+        consumer_token=os.environ["FEMIWIKI_OAUTH1_CONSUMER_TOKEN"],
+        consumer_secret=os.environ["FEMIWIKI_OAUTH1_CONSUMER_SECRET"],
+        access_token=os.environ["FEMIWIKI_OAUTH1_ACCESS_TOKEN"],
+        access_secret=os.environ["FEMIWIKI_OAUTH1_ACCESS_SECRET"],
+    )
+except Exception as err:
+    logger.exception("위키에 로그인 실패", exc_info=err)
+    exit(1)
 
 
 def main():
     logging.basicConfig(level=logging.INFO)
     logger.info("Starting the tweetbot")
-
-    if "WIKI_PASSWORD" in os.environ:
-        SITE.login(USER, os.environ["WIKI_PASSWORD"])
     text = get_wikitext("페미위키:한줄인용", True)
     quotations = list(convert_to_quotations(text))
     quotation = choice_quotation(quotations, 300)
@@ -48,18 +56,8 @@ def main():
 
 def get_wikitext(title, stable):
     """Returns wikitext of the title"""
-    url = f"https://{URL}/index.php?action=raw&"
-    if stable:
-        revid = get_stable_revid(title)
-        if revid is None:
-            return get_wikitext(title, False)
-        url = url + f"oldid={revid}"
-    else:
-        quoted_title = parse.quote(title)
-        url = url + f"title={quoted_title}"
-
-    with request.urlopen(url) as res:
-        return res.read().decode("utf-8")
+    result = SITE.api("parse", page=title, prop="wikitext", formatversion=2)
+    return result["parse"]["wikitext"]
 
 
 def get_stable_revid(title):
