@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools >= 72.1.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "tweetbot"
+version = "0.0.0"
+dependencies = [
+  "mwclient==0.11.0",
+]
+requires-python = ">= 3.12"
+
+[dependency-groups]
+dev = [
+  "flake8",
+  "pytest",
+  "pytest-cov",
+  "pytest-mock",
+  "wheel",
+]
+
+[project.scripts]
+tweetbot = "tweetbot:main"
+
+[tool.setuptools.packages.find]
+exclude = ["tmp"]
