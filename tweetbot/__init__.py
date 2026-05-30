@@ -4,75 +4,60 @@ import random
 import re
 from urllib import parse
 
+import mastodon
 import mwclient
-import twitter
 
 logger = logging.getLogger(__name__)
 
 URL = "femiwiki.com"
-RECENT_TWEETS_PAGE_NAME = "페미위키:한줄인용/최근 트윗"
-
-try:
-    SITE = mwclient.Site(
-        URL,
-        path="/",
-        # XXX: mwclient가 OAuth 2.0을 지원하지 않아 OAuth 1.0을 사용`
-        consumer_token=os.environ["FEMIWIKI_OAUTH1_CONSUMER_TOKEN"],
-        consumer_secret=os.environ["FEMIWIKI_OAUTH1_CONSUMER_SECRET"],
-        access_token=os.environ["FEMIWIKI_OAUTH1_ACCESS_TOKEN"],
-        access_secret=os.environ["FEMIWIKI_OAUTH1_ACCESS_SECRET"],
-    )
-except Exception as err:
-    logger.exception("위키에 로그인 실패", exc_info=err)
-    exit(1)
+MASTODON_SERVER = os.environ.get("MASTODON_SERVER", "https://planet.moe")
+QUOTE_POSTS_PAGE_NAME = "페미위키:한줄인용"
+RECENT_POSTS_PAGE_NAME = "페미위키:한줄인용/최근 트윗"
+CHARACTER_LIMIT = 300  # 마스토돈은 500자이지만 블루스카이 브리지를 고려해 300으로 제한
 
 
 def main():
+    try:
+        site = mwclient.Site(
+            URL,
+            path="/",
+            # XXX: mwclient가 OAuth 2.0을 지원하지 않아 OAuth 1.0을 사용`
+            consumer_token=os.environ["FEMIWIKI_OAUTH1_CONSUMER_TOKEN"],
+            consumer_secret=os.environ["FEMIWIKI_OAUTH1_CONSUMER_SECRET"],
+            access_token=os.environ["FEMIWIKI_OAUTH1_ACCESS_TOKEN"],
+            access_secret=os.environ["FEMIWIKI_OAUTH1_ACCESS_SECRET"],
+        )
+    except Exception as err:
+        logger.exception("위키에 로그인 실패", exc_info=err)
+        exit(1)
+
     logging.basicConfig(level=logging.INFO)
     logger.info("Starting the tweetbot")
-    text = get_wikitext("페미위키:한줄인용", True)
+    text = get_wikitext(site, QUOTE_POSTS_PAGE_NAME)
     quotations = list(convert_to_quotations(text))
-    quotation = choice_quotation(quotations, 300)
+    quotation = choice_quotation(site, quotations, 300)
 
     # Post for Twitter
     thread = list(
         break_text(
-            f"{quotation}&utm_source=twitter&utm_medium=tweet",
-            twitter.api.CHARACTER_LIMIT,
+            f"{quotation}&utm_source=fediverse&utm_medium=post",
+            CHARACTER_LIMIT,
         )
     )
-    api = twitter.Api(
-        consumer_key=os.environ["TWITTER_CONSUMER_KEY"],
-        consumer_secret=os.environ["TWITTER_CONSUMER_SECRET"],
-        access_token_key=os.environ["TWITTER_ACCESS_TOKEN"],
-        access_token_secret=os.environ["TWITTER_ACCESS_TOKEN_SECRET"],
+    api = mastodon.Mastodon(
+        access_token=os.environ["MASTODON_ACCESS_TOKEN"], api_base_url=MASTODON_SERVER
     )
-    status = api.PostUpdate(thread[0])
+    status = api.status_post(thread[0])
     for line in thread[1:]:
-        status = api.PostUpdate(line, in_reply_to_status_id=status.id)
+        status = api.status_post(line, in_reply_to_id=status)
 
     logger.info("Successfully tweeted")
 
 
-def get_wikitext(title, stable):
+def get_wikitext(site, title):
     """Returns wikitext of the title"""
-    result = SITE.api("parse", page=title, prop="wikitext", formatversion=2)
+    result = site.api("parse", page=title, prop="wikitext", formatversion=2)
     return result["parse"]["wikitext"]
-
-
-def get_stable_revid(title):
-    """Returns the stable revision id of the given title"""
-    try:
-        # Try to get the stable rev id using API
-        result = SITE.api("query", prop="info|flagged", titles=title)
-        page = next(iter(result["query"]["pages"].values()[0]))
-
-        if "flagged" in page and "stable_revid" in page["flagged"]:
-            return page["flagged"]["stable_revid"]
-        return page["lastrevid"]
-    except Exception:
-        # (API returns nothing if recent logs don't contain patrol activity)
-        return None
 
 
 def convert_to_quotations(text):
@@ -83,6 +68,8 @@ def convert_to_quotations(text):
         tweet = re.match(r"^\*\s*(.+)\s*$", line)
 
         if tweet:
+            if not title:
+                raise Exception(f"인용글 제목이 없음: {tweet.group(1)}")
             yield (
                 f"{tweet.group(1)} https://{URL}/w/{parse.quote(title)}?utm_campaign=bot"
             )
@@ -92,8 +79,8 @@ def convert_to_quotations(text):
                 title = new_title.group(1)
 
 
-def choice_quotation(tweets, saving_limit=300):
-    page = SITE.pages[RECENT_TWEETS_PAGE_NAME]
+def choice_quotation(site, tweets, saving_limit=300):
+    page = site.pages[RECENT_POSTS_PAGE_NAME]
     recent_tweets = page.text().split("\n")
     for recent_tweet in recent_tweets:
         if recent_tweet in tweets:
@@ -106,23 +93,20 @@ def choice_quotation(tweets, saving_limit=300):
     recent_tweets.append(chosen_tweet)
 
     new_wikitext = "\n".join(recent_tweets)
-    page.save(new_wikitext, "최근 트윗 갱신")
+    page.save(new_wikitext, "최근 글 갱신")
 
     return chosen_tweet
 
 
-def break_text(text, limit=280, cont="\u2026"):
-    if twitter.twitter_utils.calc_expected_status_length(text) <= limit:
+def break_text(text, limit, cont="\u2026"):
+    if len(text) <= limit:
         yield text
         return
 
     words = text.split(" ")
     line = ""
     for i, word in enumerate(words):
-        if (
-            twitter.twitter_utils.calc_expected_status_length(line + " " + word)
-            >= limit
-        ):
+        if len(line + " " + word) >= limit:
             yield line + cont
             line = cont + word
         else:

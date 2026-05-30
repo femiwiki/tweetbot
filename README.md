@@ -1,44 +1,29 @@
 [tweetbot] [![Github checks status]][github checks link] [![codecov.io status]][codecov.io link]
 ========
 
-[Github Action]을 통해 [페미위키]의 [페미위키:한줄인용] 문서에서 한 문장을 가져와 지정된 트위터
+[GitHub Action]을 통해 [페미위키]의 [페미위키:한줄인용] 문서에서 한 문장을 가져와 지정된 마스토돈
 계정에 트윗합니다.
 
-&nbsp;
+## 개발
 
-Development
---------
 ```bash
-# Setup venv first
-# python -m venv .venv
-# source .venv/bin/activate
-
-# Install dependencies
-pip install -r requirements.txt
-pip install --editable .
-
 # Run
-export TWITTER_CONSUMER_KEY=xxxxxxxx
-export TWITTER_CONSUMER_SECRET=xxxxxxxx
-export TWITTER_ACCESS_TOKEN=xxxxxxxx
-export TWITTER_ACCESS_TOKEN_SECRET=xxxxxxxx
-export WIKI_PASSWORD=xxxxxxxx
-python -m tweetbot
+export MASTODON_ACCESS_TOKEN=xxxxxxxx
+export FEMIWIKI_OAUTH1_CONSUMER_TOKEN=xxxxxxxx
+export FEMIWIKI_OAUTH1_CONSUMER_SECRET=xxxxxxxx
+export FEMIWIKI_OAUTH1_ACCESS_TOKEN=xxxxxxxx
+export FEMIWIKI_OAUTH1_ACCESS_SECRET=xxxxxxxx
+uv run tweetbot
 
 # Test
-pip install pytest
-pytest
+uv run pytest
 
 # Lint
-pip install flake8
-flake8
+uv run flake8
 
 # Packaging
-pip install wheel
-python setup.py sdist bdist_wheel
+uv build
 ```
-
-&nbsp;
 
 --------
 
@@ -50,7 +35,7 @@ the [GNU Affero General Public License v3.0] or any later version. See
 [github checks link]: https://github.com/femiwiki/tweetbot/actions
 [codecov.io status]: https://badgen.net/codecov/c/github/femiwiki/tweetbot
 [codecov.io link]: https://codecov.io/gh/femiwiki/tweetbot
-[Github Action]: https://github.com/features/actions
+[GitHub Action]: https://github.com/features/actions
 [tweetbot]: https://femiwiki.com/w/%EC%82%AC%EC%9A%A9%EC%9E%90:%ED%8A%B8%EC%9C%97%EB%B4%87
 [페미위키]: https://femiwiki.com
 [페미위키:한줄인용]: https://femiwiki.com/w/%ED%8E%98%EB%AF%B8%EC%9C%84%ED%82%A4:%ED%95%9C%EC%A4%84%EC%9D%B8%EC%9A%A9
