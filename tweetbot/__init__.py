@@ -32,12 +32,12 @@ def main():
         exit(1)
 
     logging.basicConfig(level=logging.INFO)
-    logger.info("Starting the tweetbot")
+    logger.info("마스토돈 뿌우봇 가동")
     text = get_wikitext(site, QUOTE_POSTS_PAGE_NAME)
     quotations = list(convert_to_quotations(text))
     quotation = choice_quotation(site, quotations, 300)
 
-    # Post for Twitter
+    # 마스토돈에 뿌우하기
     thread = list(
         break_text(
             f"{quotation}&utm_source=fediverse&utm_medium=post",
@@ -51,11 +51,11 @@ def main():
     for line in thread[1:]:
         status = api.status_post(line, in_reply_to_id=status)
 
-    logger.info("Successfully tweeted")
+    logger.info("뿌우 성공")
 
 
 def get_wikitext(site, title):
-    """Returns wikitext of the title"""
+    """해당 글의 위키텍스트를 반환합니다"""
     result = site.api("parse", page=title, prop="wikitext", formatversion=2)
     return result["parse"]["wikitext"]
 
