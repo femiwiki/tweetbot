@@ -4,8 +4,6 @@ on:
   schedule:
     # * is a special character in YAML so you have to quote this string
     - cron: "0 16,20,0,4,8,12 * * *"
-  push:
-  pull_request:
   workflow_dispatch:
 
 jobs:
@@ -22,7 +20,7 @@ jobs:
         uses: astral-sh/setup-uv@v7
 
       - name: Post
-        if: github.repository_owner == 'femiwiki' && github.ref == 'refs/heads/main' && github.event_name == 'schedule'
+        if: github.repository_owner == 'femiwiki' && github.ref == 'refs/heads/main'
         run: uv run tweetbot
         env:
           MASTODON_ACCESS_TOKEN: ${{ secrets.MASTODON_ACCESS_TOKEN }}
