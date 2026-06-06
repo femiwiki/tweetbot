@@ -11,24 +11,11 @@ jobs:
 
       - uses: actions/setup-python@v6
         with:
-          python-version: '3.x'
+          python-version: "3.x"
 
-      - name: Cache python modules
-        uses: actions/cache@v5
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
-          restore-keys: |
-            ${{ runner.os }}-pip-
-      - name: Install dependencies
-        run: |
-          python -m pip install -r requirements.txt
-          python -m pip install -r requirements-dev.txt
-          python setup.py bdist_wheel
-          python -m pip install dist/tweetbot-*.whl
       - name: Lint
-        run: flake8 -v
+        run: uv run flake8 -v
       - name: Test
-        run: pytest --cov-report=xml --cov=./
+        run: uv run pytest --cov-report=xml --cov=./
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v5
