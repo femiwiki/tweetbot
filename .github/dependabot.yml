@@ -6,6 +6,8 @@ updates:
       interval: monthly
     reviewers:
       - 'femiwiki/reviewer'
+    cooldown:
+      default-days: 7
 
   - package-ecosystem: "github-actions"
     directory: "/"
@@ -18,4 +20,6 @@ updates:
         update-types:
           - 'version-update:semver-minor'
           - 'version-update:semver-patch'
+    cooldown:
+      default-days: 7
 
