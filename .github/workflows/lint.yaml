@@ -66,17 +66,9 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Install taplo
-        env:
-          TAPLO_VERSION: 0.10.0
-          TAPLO_SHA256: 8fe196b894ccf9072f98d4e1013a180306e17d244830b03986ee5e8eabeb6156
-        run: |
-          curl -fsSL -o "$RUNNER_TEMP/taplo.gz" \
-            "https://github.com/tamasfe/taplo/releases/download/${TAPLO_VERSION}/taplo-linux-x86_64.gz"
-          echo "${TAPLO_SHA256}  $RUNNER_TEMP/taplo.gz" | sha256sum --check
-          gunzip "$RUNNER_TEMP/taplo.gz"
-          chmod +x "$RUNNER_TEMP/taplo"
-          echo "$RUNNER_TEMP" >> "$GITHUB_PATH"
+      - uses: uncenter/setup-taplo@b18c8c8302695fe63d6853bc004006215ac52b91  # v2
+        with:
+          version: "0.10.0"
 
       - run: taplo fmt --check
 
