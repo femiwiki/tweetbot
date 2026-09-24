@@ -45,9 +45,7 @@ class MockSite:
 @mock.patch.dict(os.environ, {"FEMIWIKI_OAUTH1_ACCESS_SECRET": ""})
 def test_main(mocker):
     mocker.patch("mwclient.page.Page.save", return_value=None)
-    mocker.patch(
-        "mwclient.listing.PageList", return_value={tweetbot.RECENT_POSTS_PAGE_NAME: ""}
-    )
+    mocker.patch("mwclient.listing.PageList", return_value={tweetbot.RECENT_POSTS_PAGE_NAME: ""})
     mocker.patch("mwclient.Site", return_value=MockSite())
     mocker.patch("mastodon.Mastodon", return_value=MockApi())
 
