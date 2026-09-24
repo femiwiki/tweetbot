@@ -1,5 +1,4 @@
-[tweetbot] [![Github checks status]][github checks link] [![codecov.io status]][codecov.io link]
-========
+# [tweetbot] [![Github checks status]][github checks link] [![codecov.io status]][codecov.io link]
 
 [GitHub Action]을 통해 [페미위키]의 [페미위키:한줄인용] 문서에서 한 문장을 가져와 지정된 마스토돈
 계정에 트윗합니다.
