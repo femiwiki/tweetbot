@@ -1,5 +1,8 @@
 extends: default
 
+ignore: |
+  /.venv/
+
 rules:
   comments:
     min-spaces-from-content: 1

@@ -19,6 +19,9 @@ dev = [
   "pytest-mock",
   "wheel",
 ]
+lint = [
+  "yamllint==1.38.0",
+]
 
 [project.scripts]
 tweetbot = "tweetbot:main"
