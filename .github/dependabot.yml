@@ -22,4 +22,3 @@ updates:
           - 'version-update:semver-patch'
     cooldown:
       default-days: 7
-
