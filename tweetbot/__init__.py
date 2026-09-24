@@ -2,6 +2,7 @@ import logging
 import os
 import random
 import re
+import sys
 from urllib import parse
 
 import mastodon
@@ -29,7 +30,7 @@ def main():
         )
     except Exception as err:
         logger.exception("위키에 로그인 실패", exc_info=err)
-        exit(1)
+        sys.exit(1)
 
     logging.basicConfig(level=logging.INFO)
     logger.info("마스토돈 뿌우봇 가동")
@@ -44,9 +45,7 @@ def main():
             CHARACTER_LIMIT,
         )
     )
-    api = mastodon.Mastodon(
-        access_token=os.environ["MASTODON_ACCESS_TOKEN"], api_base_url=MASTODON_SERVER
-    )
+    api = mastodon.Mastodon(access_token=os.environ["MASTODON_ACCESS_TOKEN"], api_base_url=MASTODON_SERVER)
     status = api.status_post(thread[0])
     for line in thread[1:]:
         status = api.status_post(line, in_reply_to_id=status)
@@ -69,10 +68,8 @@ def convert_to_quotations(text):
 
         if tweet:
             if not title:
-                raise Exception(f"인용글 제목이 없음: {tweet.group(1)}")
-            yield (
-                f"{tweet.group(1)} https://{URL}/w/{parse.quote(title)}?utm_campaign=bot"
-            )
+                raise ValueError(f"인용글 제목이 없음: {tweet.group(1)}")
+            yield (f"{tweet.group(1)} https://{URL}/w/{parse.quote(title)}?utm_campaign=bot")
         else:
             new_title = re.match(r"^=+\s*\[*([^=\]]+)\]*\s*=+$", line)
             if new_title:
