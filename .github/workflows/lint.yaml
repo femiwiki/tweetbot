@@ -67,8 +67,6 @@ jobs:
           persist-credentials: false
 
       - uses: uncenter/setup-taplo@b18c8c8302695fe63d6853bc004006215ac52b91  # v2
-        with:
-          version: "0.10.0"
 
       - run: taplo fmt --check
 
