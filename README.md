@@ -18,7 +18,7 @@ uv run tweetbot
 uv run pytest
 
 # Lint
-uv run flake8
+uv run --only-group lint ruff check
 
 # Packaging
 uv build
