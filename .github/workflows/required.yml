@@ -9,12 +9,12 @@ permissions: {}
 
 jobs:
   lint:
-    uses: ./.github/workflows/lint.yaml
+    uses: ./.github/workflows/lint.yml
     permissions:
       contents: read
 
   test:
-    uses: ./.github/workflows/test.yaml
+    uses: ./.github/workflows/test.yml
     permissions:
       contents: read
       id-token: write
