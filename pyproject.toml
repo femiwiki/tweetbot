@@ -19,7 +19,7 @@ dev = [
   "wheel",
 ]
 lint = [
-  "ruff==0.16.5",
+  "ruff==0.17.2",
   "yamllint==1.38.0",
 ]
 
