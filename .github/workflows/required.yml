@@ -20,7 +20,7 @@ jobs:
       id-token: write
 
   shared-lint:
-    uses: femiwiki/.github/.github/workflows/shared-lint.yml@5af0edb4c26434df8cc919442ed8403c3ad8b82f
+    uses: femiwiki/.github/.github/workflows/shared-lint.yml@3e6459a3c50f36a8c50ada1b0e6aa52d8fa6aa21
     permissions:
       contents: read
 
