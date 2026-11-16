@@ -1,6 +1,6 @@
 # [tweetbot] [![Github checks status]][github checks link] [![codecov.io status]][codecov.io link]
 
-Picks a sentence from the [페미위키:한줄인용] page on [FemiWiki] and posts it to
+Picks a sentence from the [페미위키:한줄인용] page on [Femiwiki] and posts it to
 a Mastodon account, running on [GitHub Actions].
 
 ## Development
@@ -36,7 +36,7 @@ the [GNU Affero General Public License v3.0] or any later version. See
 [codecov.io link]: https://codecov.io/gh/femiwiki/tweetbot
 [GitHub Actions]: https://github.com/features/actions
 [tweetbot]: https://femiwiki.com/w/%EC%82%AC%EC%9A%A9%EC%9E%90:%ED%8A%B8%EC%9C%97%EB%B4%87
-[FemiWiki]: https://femiwiki.com
+[Femiwiki]: https://femiwiki.com
 [페미위키:한줄인용]: https://femiwiki.com/w/%ED%8E%98%EB%AF%B8%EC%9C%84%ED%82%A4:%ED%95%9C%EC%A4%84%EC%9D%B8%EC%9A%A9
 [GNU Affero General Public License v3.0]: LICENSE
 [COPYRIGHT]: COPYRIGHT
